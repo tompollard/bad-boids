@@ -8,11 +8,12 @@ from matplotlib import animation
 import random
 
 # Deliberately terrible code for teaching purposes
-def initialise_boids():
-	boids_x=[random.uniform(-450,50.0) for x in range(50)]
-	boids_y=[random.uniform(300.0,600.0) for x in range(50)]
-	boid_x_velocities=[random.uniform(0,10.0) for x in range(50)]
-	boid_y_velocities=[random.uniform(-20.0,20.0) for x in range(50)]
+def initialise_boids(number_of_boids):
+	boid_rng = range(number_of_boids)
+	boids_x=[random.uniform(-450,50.0) for boid in boid_rng]
+	boids_y=[random.uniform(300.0,600.0) for boid in boid_rng]
+	boid_x_velocities=[random.uniform(0,10.0) for boid in boid_rng]
+	boid_y_velocities=[random.uniform(-20.0,20.0) for boid in boid_rng]
 	boids=(boids_x,boids_y,boid_x_velocities,boid_y_velocities)
 	return boids
 
@@ -43,7 +44,7 @@ def update_boids(boids):
 		ys[i]=ys[i]+yvs[i]
 
 # initialise boids
-boids = initialise_boids()
+boids = initialise_boids(50)
 
 figure=plt.figure()
 axes=plt.axes(xlim=(-500,1500), ylim=(-500,1500))

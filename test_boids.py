@@ -4,10 +4,15 @@ import os
 import yaml
 import copy
 
-def test_bad_boids_regression():
+# nose_paramaterized lets us use the @parameterized decorator
+# to pass a list of functions through each test
+from nose_parameterized import parameterized
+
+@parameterized([[bd.update_boids],[bd.update_boids_faster]])
+def test_bad_boids_regression(update_function):
     regression_data=yaml.load(open(os.path.join(os.path.dirname(__file__),'fixture.yml')))
     boid_data=regression_data["before"]
-    bd.update_boids(boid_data)
+    update_function(boid_data)
     for after,before in zip(regression_data["after"],boid_data):
         for after_value,before_value in zip(after,before): 
             assert_almost_equal(after_value,before_value,delta=0.01)
@@ -18,27 +23,30 @@ def test_initialise_creates_correct_no_of_boids():
     for item in boids: # unpack xs,ys,xvs,xys
         assert_equal(len(item), number_of_boids)
 
-def test_update_boids_input():
+@parameterized([[bd.update_boids],[bd.update_boids_faster]])
+def test_update_boids_input(update_function):
     input_data = [1,2,3,4,5]
     with assert_raises(ValueError):
-        bd.update_boids(input_data)
+        update_function(input_data)
 
-def test_only_one_boid_shows_no_flocking_behaviour():
+@parameterized([[bd.update_boids],[bd.update_boids_faster]])
+def test_only_one_boid_shows_no_flocking_behaviour(update_function):
     x_pos,y_pos,x_vel,y_vel = [1.0],[1.0],[2.0],[7.0]
     boid = (x_pos, y_pos, x_vel, y_vel)
     initial_boid = copy.deepcopy(boid)
-    bd.update_boids(boid)
+    update_function(boid)
     # new positions equal initial position + velocity
     assert_equal(boid[0][0],initial_boid[0][0]+initial_boid[2][0])
     assert_equal(boid[1][0],initial_boid[1][0]+initial_boid[3][0])
 
-def test_two_indentical_boids_move_to_new_positions():
+@parameterized([[bd.update_boids],[bd.update_boids_faster]])
+def test_two_indentical_boids_move_to_new_positions(update_function):
     x_pos = [1.0,1.0]
     y_pos = [1.0,1.0]
     x_vel = [2.0,2.0]
     y_vel = [7.0,2.0]
     boids = (x_pos, y_pos, x_vel, y_vel)
     initial_boids = copy.deepcopy(boids)
-    bd.update_boids(boids)
+    update_function(boids)
     assert_not_equal(boids[0:2],initial_boids[0:2])
 

@@ -40,7 +40,7 @@ def test_only_one_boid_shows_no_flocking_behaviour(update_function):
     assert_equal(boid[1][0],initial_boid[1][0]+initial_boid[3][0])
 
 @parameterized([[bd.update_boids],[bd.update_boids_faster]])
-def test_two_indentical_boids_move_to_new_positions(update_function):
+def test_two_identical_boids_move_to_new_positions(update_function):
     x_pos = [1.0,1.0]
     y_pos = [1.0,1.0]
     x_vel = [2.0,2.0]

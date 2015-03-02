@@ -23,7 +23,30 @@ def initialise_boids(number_of_boids):
 
 def update_boids_faster(boids):
     ''' This is where our faster boids will live '''
-    pass
+    xs, ys, xvs, yvs = boids
+    # Fly towards the middle
+    for i in range(len(xs)):
+        for j in range(len(xs)):
+            xvs[i] = xvs[i] + (xs[j] - xs[i]) * 0.01 / len(xs)
+    for i in range(len(xs)):
+        for j in range(len(xs)):
+            yvs[i] = yvs[i] + (ys[j] - ys[i]) * 0.01 / len(xs)
+    # Fly away from nearby boids
+    for i in range(len(xs)):
+        for j in range(len(xs)):
+            if (xs[j] - xs[i])**2 + (ys[j] - ys[i])**2 < 100:
+                xvs[i] = xvs[i] + (xs[i] - xs[j])
+                yvs[i] = yvs[i] + (ys[i] - ys[j])
+    # Try to match speed with nearby boids
+    for i in range(len(xs)):
+        for j in range(len(xs)):
+            if (xs[j] - xs[i])**2 + (ys[j] - ys[i])**2 < 10000:
+                xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
+                yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
+    # Move according to velocities
+    for i in range(len(xs)):
+        xs[i] = xs[i] + xvs[i]
+        ys[i] = ys[i] + yvs[i]
 
 
 def update_boids(boids):

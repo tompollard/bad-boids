@@ -17,6 +17,10 @@ def initialise_boids(number_of_boids):
 	boids=(boids_x,boids_y,boid_x_velocities,boid_y_velocities)
 	return boids
 
+def update_boids_faster(boids):
+	''' This is where our faster boids will live '''
+	pass
+
 def update_boids(boids):
 	xs,ys,xvs,yvs=boids
 	# Fly towards the middle

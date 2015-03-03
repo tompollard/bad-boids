@@ -8,15 +8,18 @@ from numpy import array
 
 # Create super class
 class Boid(object):
+    number_created=0
     def __init__(self,x,y,xv,yv,owner,species):
+        Boid.number_created+=1
         self.position=array([x,y])
         self.velocity=array([xv,yv])
         self.owner=owner
         self.species=species
-
+    @classmethod
+    def howMany(cls):
+        return cls.number_created
 
 class Starling(Boid):
-    # super(Eagle, self).__init__(x,y,xv,yv,boids)
     def __init__(self,x,y,xv,yv,owner):
         super(Starling, self).__init__(x,y,xv,yv,owner,'Starling')
 
@@ -30,10 +33,6 @@ class Starling(Boid):
             if separation_sq < self.owner.eagle_avoidance_radius**2:
                 delta_v-=(separation*self.owner.eagle_fear)/separation.dot(separation)
                 return delta_v
-
-        if self.species=="Eagle":
-            # Hunt the boids
-            delta_v+=separation*self.owner.eagle_hunt_strength
         else:
             # Fly towards the middle
             delta_v+=separation*self.owner.flock_attraction
@@ -49,9 +48,7 @@ class Starling(Boid):
         return delta_v
 
 
-
 class Eagle(Boid):
-    # super(Eagle, self).__init__(x,y,xv,yv,boids)
     def __init__(self,x,y,xv,yv,owner):
         super(Eagle, self).__init__(x,y,xv,yv,owner,'Eagle')
 

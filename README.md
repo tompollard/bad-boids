@@ -5,5 +5,5 @@ Master branch contains a deliberately bad implementation of [Boids](http://dl.ac
 for use as an exercise on refactoring.
 
 Refactored versions exist in separate branches:
-e.g.: A version optimised in NumPy is available at: [https://github.com/tompollard/bad-boids/tree/perform](https://github.com/tompollard/bad-boids/tree/perform)
+e.g.: A version optimised in NumPy is available in the perform branch.
 

@@ -50,7 +50,6 @@ def update_boids_faster(boids):
     #             xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
     #             yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
     
-    # arraywise. broadcast and use index
     # passes with 0.06 delta on regression test
     xs_array = xs-xs[np.newaxis].T
     ys_array = ys-ys[np.newaxis].T

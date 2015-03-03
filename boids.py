@@ -33,12 +33,15 @@ def update_boids_faster(boids):
     newys = (ys - np.sum(ys)/float(boid_num)) * 0.01
     yvs = yvs - newys
 
-    for i in range(len(xs)):
-        for j in range(len(xs)):
-            # Fly away from nearby boids
-            if (xs[j] - xs[i])**2 + (ys[j] - ys[i])**2 < 100:
-                xvs[i] = xvs[i] + (xs[i] - xs[j])
-                yvs[i] = yvs[i] + (ys[i] - ys[j])
+    # Fly away from nearby boids
+    # arraywise. broadcast and use index
+    xs_array = xs-xs[np.newaxis].T
+    ys_array = ys-ys[np.newaxis].T
+    nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 100
+    xs_array[~nearby_boid_idx] = 0 # remove values outside range
+    ys_array[~nearby_boid_idx] = 0 # remove values outside range
+    xvs = xvs + xs_array.sum(axis=0)
+    yvs = yvs + ys_array.sum(axis=0) 
 
     for i in range(len(xs)):
         for j in range(len(xs)):

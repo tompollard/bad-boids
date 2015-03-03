@@ -6,14 +6,54 @@ for use as an exercise on refactoring.
 import random
 from numpy import array
 
-# Will now add an Eagle to Boids
-
+# Create super class
 class Boid(object):
-    def __init__(self,x,y,xv,yv,owner,species="Starling"):
+    def __init__(self,x,y,xv,yv,owner,species):
         self.position=array([x,y])
         self.velocity=array([xv,yv])
         self.owner=owner
         self.species=species
+
+
+class Starling(Boid):
+    # super(Eagle, self).__init__(x,y,xv,yv,boids)
+    def __init__(self,x,y,xv,yv,owner):
+        super(Starling, self).__init__(x,y,xv,yv,owner,'Starling')
+
+    def interaction(self,other):
+        delta_v=array([0.0,0.0])
+        separation=other.position-self.position
+        separation_sq=separation.dot(separation)
+ 
+        if other.species=="Eagle":
+            # Flee the Eagle
+            if separation_sq < self.owner.eagle_avoidance_radius**2:
+                delta_v-=(separation*self.owner.eagle_fear)/separation.dot(separation)
+                return delta_v
+
+        if self.species=="Eagle":
+            # Hunt the boids
+            delta_v+=separation*self.owner.eagle_hunt_strength
+        else:
+            # Fly towards the middle
+            delta_v+=separation*self.owner.flock_attraction
+            
+            # Fly away from nearby boids
+            if separation_sq < self.owner.avoidance_radius**2:
+                delta_v-=separation
+
+            # Try to match speed with nearby boids
+            if separation_sq < self.owner.formation_flying_radius**2:
+                delta_v+=(other.velocity-self.velocity)*self.owner.speed_matching_strength
+
+        return delta_v
+
+
+
+class Eagle(Boid):
+    # super(Eagle, self).__init__(x,y,xv,yv,boids)
+    def __init__(self,x,y,xv,yv,owner):
+        super(Eagle, self).__init__(x,y,xv,yv,owner,'Eagle')
 
     def interaction(self,other):
         delta_v=array([0.0,0.0])
@@ -60,13 +100,14 @@ class Boids(object):
 
 
     def initialise_random(self,count):
-        self.boids=[Boid(random.uniform(-450,50.0),
+        self.boids=[Starling(random.uniform(-450,50.0),
                 random.uniform(300.0,600.0),
                 random.uniform(0,10.0),
-                random.uniform(-20.0,20.0),self) for i in range(count)]
+                random.uniform(-20.0,20.0), self) for i in range(count)]
 
     def add_eagle(self,x,y,xv,yv):
-        self.boids.append(Boid(x,y,xv,yv,self,species="Eagle"))
+        self.boids.append(Eagle(x,y,xv,yv,self))
+        # self.boids.append(Eagle(x,y,xv,yv,self))
 
     def initialise_from_data(self,data):
         self.boids=[Boid(x,y,xv,yv,self) for x,y,xv,yv in zip(*data)]

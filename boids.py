@@ -23,6 +23,7 @@ def initialise_boids(number_of_boids):
 
 def update_boids_faster(boids):
     ''' This is where our faster boids will live '''
+    boids = np.array(boids)
     xs, ys, xvs, yvs = boids
     
     for i in range(len(xs)):
@@ -45,10 +46,15 @@ def update_boids_faster(boids):
                 xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
                 yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
     
-    for i in range(len(xs)):
-        # Move according to velocities
-        xs[i] = xs[i] + xvs[i]
-        ys[i] = ys[i] + yvs[i]
+    # for i in range(len(xs)):
+    #     # Move according to velocities
+    #     xs[i] = xs[i] + xvs[i]
+    #     ys[i] = ys[i] + yvs[i]
+    xs = xs + xvs
+    ys = ys + yvs
+
+    boids = np.array([xs, ys, xvs, yvs])
+    return boids
 
 
 def update_boids(boids):
@@ -76,6 +82,8 @@ def update_boids(boids):
     for i in range(len(xs)):
         xs[i] = xs[i] + xvs[i]
         ys[i] = ys[i] + yvs[i]
+
+    return boids
 
 # initialise boids
 boids = initialise_boids(50)

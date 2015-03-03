@@ -3,6 +3,7 @@ from nose.tools import assert_almost_equal, assert_raises, assert_equal, assert_
 import os
 import yaml
 import copy
+import numpy as np
 
 # nose_paramaterized lets us use the @parameterized decorator
 # to pass a list of functions through each test
@@ -12,7 +13,7 @@ from nose_parameterized import parameterized
 def test_bad_boids_regression(update_function):
     regression_data=yaml.load(open(os.path.join(os.path.dirname(__file__),'fixture.yml')))
     boid_data=regression_data["before"]
-    update_function(boid_data)
+    boid_data=update_function(boid_data)
     for after,before in zip(regression_data["after"],boid_data):
         for after_value,before_value in zip(after,before): 
             assert_almost_equal(after_value,before_value,delta=0.01)
@@ -34,7 +35,7 @@ def test_only_one_boid_shows_no_flocking_behaviour(update_function):
     x_pos,y_pos,x_vel,y_vel = [1.0],[1.0],[2.0],[7.0]
     boid = (x_pos, y_pos, x_vel, y_vel)
     initial_boid = copy.deepcopy(boid)
-    update_function(boid)
+    boid = update_function(boid)
     # new positions equal initial position + velocity
     assert_equal(boid[0][0],initial_boid[0][0]+initial_boid[2][0])
     assert_equal(boid[1][0],initial_boid[1][0]+initial_boid[3][0])
@@ -47,6 +48,7 @@ def test_two_identical_boids_move_to_new_positions(update_function):
     y_vel = [7.0,2.0]
     boids = (x_pos, y_pos, x_vel, y_vel)
     initial_boids = copy.deepcopy(boids)
-    update_function(boids)
-    assert_not_equal(boids[0:2],initial_boids[0:2])
+    boids = update_function(boids)
+    boids = np.array(boids)
+    assert_not_equal(boids[0:2].tolist(),initial_boids[0:2])
 

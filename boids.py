@@ -47,19 +47,16 @@ def update_boids_faster(boids):
     #             xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
     #             yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
     
-    # passes with 0.06 delta on regression test
-    xs_array = boids[0,np.newaxis,:]-boids[0,:,np.newaxis] # broadcasting
-    ys_array = boids[1,np.newaxis,:]-boids[1,:,np.newaxis] # broadcasting
-    nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 10000
 
-    speed_differences_x=boids[2,np.newaxis,:]-boids[2,:,np.newaxis]
-    speed_differences_y=boids[3,np.newaxis,:]-boids[3,:,np.newaxis]
-    speed_differences_x[~nearby_boid_idx]=0
-    speed_differences_y[~nearby_boid_idx]=0
+    not_far_away=square_radiuses<10000
+    separations=boids[0:2,np.newaxis,:]-boids[0:2,:,np.newaxis]
 
-    boids[2,:] -= speed_differences_x.sum(axis=0) * 0.125/boid_num
-    boids[3,:] -= speed_differences_y.sum(axis=0) * 0.125/boid_num
-    
+    speed_differences=boids[2:,np.newaxis,:]-boids[2:,:,np.newaxis]
+
+    speed_differences[0,:,:][~not_far_away]=0
+    speed_differences[1,:,:][~not_far_away]=0
+
+    boids[2:,:] -= np.sum(speed_differences,1) * 0.125/boid_num
 
     # Move according to velocities
     boids[0:2] += boids[2:]

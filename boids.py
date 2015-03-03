@@ -18,19 +18,20 @@ def initialise_boids(number_of_boids):
     boid_x_velocities = [random.uniform(0, 10.0) for boid in boid_rng]
     boid_y_velocities = [random.uniform(-20.0, 20.0) for boid in boid_rng]
     boids = (boids_x, boids_y, boid_x_velocities, boid_y_velocities)
-    return np.array(boids)
+    return boids
 
 
 def update_boids_faster(boids):
     ''' This is where our faster boids will live '''
     boids = np.array(boids)
     xs, ys, xvs, yvs = boids
+    boid_num = len(xs)
     
-    for i in range(len(xs)):
-        for j in range(len(xs)):
-            # Fly towards the middle
-            xvs[i] = xvs[i] + (xs[j] - xs[i]) * 0.01 / len(xs)
-            yvs[i] = yvs[i] + (ys[j] - ys[i]) * 0.01 / len(xs)
+    # Fly towards the middle
+    newxs = (xs - np.sum(xs)/float(boid_num)) * 0.01
+    xvs = xvs - newxs
+    newys = (ys - np.sum(ys)/float(boid_num)) * 0.01
+    yvs = yvs - newys
 
     for i in range(len(xs)):
         for j in range(len(xs)):

@@ -22,11 +22,13 @@ def initialise_boids(number_of_boids):
 
 
 def update_boids_faster(boids):
-    ''' This is where our faster boids will live '''
+    ''' This is where our faster boids live '''
     boid_num=boids.shape[1]
     boid_num_float = float(boid_num)
 
-    boids[2:,:]-= 0.01*(boids[0:2,:]-np.sum(boids[0:2,:,np.newaxis],1)/boid_num_float)
+    # Fly towards the middle
+    boids[2:,:]-= 0.01*(boids[0:2,:]- \
+        np.sum(boids[0:2,:,np.newaxis],1)/boid_num_float)
 
     # Fly away from nearby boids
     separations=boids[0:2,np.newaxis,:]-boids[0:2,:,np.newaxis]
@@ -35,24 +37,14 @@ def update_boids_faster(boids):
     nearby=square_radiuses<100
 
     separations[0,:,:][~nearby[:,:]] = 0 # remove values outside range
-    separations[1,:,:][~nearby[:,:]] = 0
+    separations[1,:,:][~nearby[:,:]] = 0 # I cannot work out how to
+                                         # merge these two lines
 
     boids[2:,:] +=  np.sum(separations[0:2,:,:],1)
 
     # Try to match speed with nearby boids
-    # for i in range(len(xs)):
-    #     for j in range(len(xs)):
-    #         # Try to match speed with nearby boids
-    #         if (xs[j] - xs[i])**2 + (ys[j] - ys[i])**2 < 10000:
-    #             xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
-    #             yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
-    
-
     not_far_away=square_radiuses<10000
-    separations=boids[0:2,np.newaxis,:]-boids[0:2,:,np.newaxis]
-
     speed_differences=boids[2:,np.newaxis,:]-boids[2:,:,np.newaxis]
-
     speed_differences[0,:,:][~not_far_away]=0
     speed_differences[1,:,:][~not_far_away]=0
 
@@ -60,8 +52,6 @@ def update_boids_faster(boids):
 
     # Move according to velocities
     boids[0:2] += boids[2:]
-
-    return boids
 
 
 def update_boids(boids):
@@ -90,7 +80,6 @@ def update_boids(boids):
         xs[i] = xs[i] + xvs[i]
         ys[i] = ys[i] + yvs[i]
 
-    return boids
 
 # initialise boids
 boids = np.array(initialise_boids(100))

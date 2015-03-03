@@ -34,26 +34,35 @@ def update_boids_faster(boids):
     yvs = yvs - newys
 
     # Fly away from nearby boids
-    # arraywise. broadcast and use index
-    xs_array = xs-xs[np.newaxis].T
-    ys_array = ys-ys[np.newaxis].T
+    xs_array = xs-xs[np.newaxis].T # broadcasting
+    ys_array = ys-ys[np.newaxis].T # broadcasting
     nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 100
     xs_array[~nearby_boid_idx] = 0 # remove values outside range
     ys_array[~nearby_boid_idx] = 0 # remove values outside range
     xvs = xvs + xs_array.sum(axis=0)
     yvs = yvs + ys_array.sum(axis=0) 
 
-    for i in range(len(xs)):
-        for j in range(len(xs)):
-            # Try to match speed with nearby boids
-            if (xs[j] - xs[i])**2 + (ys[j] - ys[i])**2 < 10000:
-                xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
-                yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
-    
+    # Try to match speed with nearby boids
     # for i in range(len(xs)):
-    #     # Move according to velocities
-    #     xs[i] = xs[i] + xvs[i]
-    #     ys[i] = ys[i] + yvs[i]
+    #     for j in range(len(xs)):
+    #         # Try to match speed with nearby boids
+    #         if (xs[j] - xs[i])**2 + (ys[j] - ys[i])**2 < 10000:
+    #             xvs[i] = xvs[i] + (xvs[j] - xvs[i]) * 0.125 / len(xs)
+    #             yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
+    
+    # arraywise. broadcast and use index
+    # passes with 0.06 delta on regression test
+    xs_array = xs-xs[np.newaxis].T
+    ys_array = ys-ys[np.newaxis].T
+    nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 10000
+    xvs_array = xvs - xvs[np.newaxis].T # speed of nearby
+    yvs_array = yvs - yvs[np.newaxis].T # speed of nearby
+    xvs_array[~nearby_boid_idx] = 0 # remove values outside range
+    yvs_array[~nearby_boid_idx] = 0 # remove values outside range
+    xvs = xvs - xvs_array.sum(axis=0) * 0.125/boid_num
+    yvs = yvs - yvs_array.sum(axis=0) * 0.125/boid_num 
+
+    # Move according to velocities
     xs = xs + xvs
     ys = ys + yvs
 
@@ -90,7 +99,7 @@ def update_boids(boids):
     return boids
 
 # initialise boids
-boids = initialise_boids(50)
+boids = initialise_boids(100)
 
 figure = plt.figure()
 axes = plt.axes(xlim=(-500, 1500), ylim=(-500, 1500))

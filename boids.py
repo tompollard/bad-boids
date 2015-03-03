@@ -29,13 +29,15 @@ def update_boids_faster(boids):
     boids[2:,:]-= 0.01*(boids[0:2,:]-np.sum(boids[0:2,:,np.newaxis],1)/boid_num_float)
 
     # Fly away from nearby boids
-    xs_array = boids[0,np.newaxis,:]-boids[0,:,np.newaxis] # broadcasting
-    ys_array = boids[1,np.newaxis,:]-boids[1,:,np.newaxis] # broadcasting
-    nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 100
-    xs_array[~nearby_boid_idx] = 0 # remove values outside range
-    ys_array[~nearby_boid_idx] = 0 # remove values outside range
-    boids[2,:] +=  xs_array.sum(axis=0)
-    boids[3,:] += ys_array.sum(axis=0) 
+    separations=boids[0:2,np.newaxis,:]-boids[0:2,:,np.newaxis]
+    square_separations=separations**2
+    square_radiuses=square_separations[0,:,:]+square_separations[1,:,:]
+    nearby=square_radiuses<100
+
+    separations[0,:,:][~nearby[:,:]] = 0 # remove values outside range
+    separations[1,:,:][~nearby[:,:]] = 0
+
+    boids[2:,:] +=  np.sum(separations[0:2,:,:],1)
 
     # Try to match speed with nearby boids
     # for i in range(len(xs)):

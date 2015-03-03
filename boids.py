@@ -23,24 +23,21 @@ def initialise_boids(number_of_boids):
 
 def update_boids_faster(boids):
     ''' This is where our faster boids will live '''
-    boids = np.array(boids)
-    xs, ys, xvs, yvs = boids
-    boid_num = len(xs)
-    
-    # Fly towards the middle
-    newxs = (xs - np.sum(xs)/float(boid_num)) * 0.01
-    xvs = xvs - newxs
-    newys = (ys - np.sum(ys)/float(boid_num)) * 0.01
-    yvs = yvs - newys
+    boid_num=boids.shape[1]
+    boid_num_float = float(boid_num)
+    boids[2,:]-= 0.01*(boids[0,:]-np.sum(boids[0,:]/boid_num_float))
+    boids[3,:]-= 0.01*(boids[1,:]-np.sum(boids[1,:]/boid_num_float))
+
+
 
     # Fly away from nearby boids
-    xs_array = xs-xs[np.newaxis].T # broadcasting
-    ys_array = ys-ys[np.newaxis].T # broadcasting
+    xs_array = boids[0,np.newaxis,:]-boids[0,:,np.newaxis] # broadcasting
+    ys_array = boids[1,np.newaxis,:]-boids[1,:,np.newaxis] # broadcasting
     nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 100
     xs_array[~nearby_boid_idx] = 0 # remove values outside range
     ys_array[~nearby_boid_idx] = 0 # remove values outside range
-    xvs = xvs + xs_array.sum(axis=0)
-    yvs = yvs + ys_array.sum(axis=0) 
+    boids[2,:] +=  xs_array.sum(axis=0)
+    boids[3,:] += ys_array.sum(axis=0) 
 
     # Try to match speed with nearby boids
     # for i in range(len(xs)):
@@ -51,21 +48,23 @@ def update_boids_faster(boids):
     #             yvs[i] = yvs[i] + (yvs[j] - yvs[i]) * 0.125 / len(xs)
     
     # passes with 0.06 delta on regression test
-    xs_array = xs-xs[np.newaxis].T
-    ys_array = ys-ys[np.newaxis].T
+    xs_array = boids[0,np.newaxis,:]-boids[0,:,np.newaxis] # broadcasting
+    ys_array = boids[1,np.newaxis,:]-boids[1,:,np.newaxis] # broadcasting
     nearby_boid_idx = (xs_array)**2 + (ys_array)**2 < 10000
-    xvs_array = xvs - xvs[np.newaxis].T # speed of nearby
-    yvs_array = yvs - yvs[np.newaxis].T # speed of nearby
-    xvs_array[~nearby_boid_idx] = 0 # remove values outside range
-    yvs_array[~nearby_boid_idx] = 0 # remove values outside range
-    xvs = xvs - xvs_array.sum(axis=0) * 0.125/boid_num
-    yvs = yvs - yvs_array.sum(axis=0) * 0.125/boid_num 
+
+    speed_differences_x=boids[2,np.newaxis,:]-boids[2,:,np.newaxis]
+    speed_differences_y=boids[3,np.newaxis,:]-boids[3,:,np.newaxis]
+    speed_differences_x[~nearby_boid_idx]=0
+    speed_differences_y[~nearby_boid_idx]=0
+
+    boids[2,:] -= speed_differences_x.sum(axis=0) * 0.125/boid_num
+    boids[3,:] -= speed_differences_y.sum(axis=0) * 0.125/boid_num
+    
 
     # Move according to velocities
-    xs = xs + xvs
-    ys = ys + yvs
+    boids[0] += boids[2]
+    boids[1] += boids[3]
 
-    boids = np.array([xs, ys, xvs, yvs])
     return boids
 
 
@@ -98,7 +97,7 @@ def update_boids(boids):
     return boids
 
 # initialise boids
-boids = initialise_boids(100)
+boids = np.array(initialise_boids(100))
 
 figure = plt.figure()
 axes = plt.axes(xlim=(-500, 1500), ylim=(-500, 1500))
@@ -106,7 +105,7 @@ scatter = axes.scatter(boids[0], boids[1])
 
 
 def animate(frame):
-    update_boids(boids)
+    update_boids_faster(boids)
     scatter.set_offsets(zip(boids[0], boids[1]))
 
 

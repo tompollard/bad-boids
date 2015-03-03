@@ -25,10 +25,8 @@ def update_boids_faster(boids):
     ''' This is where our faster boids will live '''
     boid_num=boids.shape[1]
     boid_num_float = float(boid_num)
-    boids[2,:]-= 0.01*(boids[0,:]-np.sum(boids[0,:]/boid_num_float))
-    boids[3,:]-= 0.01*(boids[1,:]-np.sum(boids[1,:]/boid_num_float))
 
-
+    boids[2:,:]-= 0.01*(boids[0:2,:]-np.sum(boids[0:2,:,np.newaxis],1)/boid_num_float)
 
     # Fly away from nearby boids
     xs_array = boids[0,np.newaxis,:]-boids[0,:,np.newaxis] # broadcasting
@@ -62,8 +60,7 @@ def update_boids_faster(boids):
     
 
     # Move according to velocities
-    boids[0] += boids[2]
-    boids[1] += boids[3]
+    boids[0:2] += boids[2:]
 
     return boids
 

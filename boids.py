@@ -63,20 +63,8 @@ class Eagle(Boid):
                 delta_v-=(separation*self.owner.eagle_fear)/separation.dot(separation)
                 return delta_v
 
-        if self.species=="Eagle":
-            # Hunt the boids
-            delta_v+=separation*self.owner.eagle_hunt_strength
-        else:
-            # Fly towards the middle
-            delta_v+=separation*self.owner.flock_attraction
-            
-            # Fly away from nearby boids
-            if separation_sq < self.owner.avoidance_radius**2:
-                delta_v-=separation
-
-            # Try to match speed with nearby boids
-            if separation_sq < self.owner.formation_flying_radius**2:
-                delta_v+=(other.velocity-self.velocity)*self.owner.speed_matching_strength
+        # Hunt the boids
+        delta_v+=separation*self.owner.eagle_hunt_strength
 
         return delta_v
 

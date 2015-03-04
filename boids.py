@@ -9,26 +9,25 @@ from numpy import array
 # Create super class
 class Boid(object):
     number_created=0
-    def __init__(self,x,y,xv,yv,owner,species):
+    def __init__(self,x,y,xv,yv,owner):
         Boid.number_created+=1
         self.position=array([x,y])
         self.velocity=array([xv,yv])
         self.owner=owner
-        self.species=species
     @classmethod
     def howMany(cls):
         return cls.number_created
 
 class Starling(Boid):
     def __init__(self,x,y,xv,yv,owner):
-        super(Starling, self).__init__(x,y,xv,yv,owner,'Starling')
+        super(Starling, self).__init__(x,y,xv,yv,owner)
 
     def interaction(self,other):
         delta_v=array([0.0,0.0])
         separation=other.position-self.position
         separation_sq=separation.dot(separation)
  
-        if other.species=="Eagle":
+        if isinstance(other, Eagle):
             # Flee the Eagle
             if separation_sq < self.owner.eagle_avoidance_radius**2:
                 delta_v-=(separation*self.owner.eagle_fear)/separation.dot(separation)
@@ -50,14 +49,14 @@ class Starling(Boid):
 
 class Eagle(Boid):
     def __init__(self,x,y,xv,yv,owner):
-        super(Eagle, self).__init__(x,y,xv,yv,owner,'Eagle')
+        super(Eagle, self).__init__(x,y,xv,yv,owner)
 
     def interaction(self,other):
         delta_v=array([0.0,0.0])
         separation=other.position-self.position
         separation_sq=separation.dot(separation)
  
-        if other.species=="Eagle":
+        if isinstance(other, Eagle):
             # Flee the Eagle
             if separation_sq < self.owner.eagle_avoidance_radius**2:
                 delta_v-=(separation*self.owner.eagle_fear)/separation.dot(separation)
